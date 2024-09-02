@@ -35,8 +35,8 @@ pub fn build(b: *std.Build) void {
 
     kernel.want_lto = false;
     kernel.root_module.addImport("limine", limine.module("limine"));
-    kernel.addAssemblyFile(b.path("src/gdt.s"));
-    kernel.addAssemblyFile(b.path("src/idt.s"));
+    kernel.addAssemblyFile(b.path("src/asm/gdt.s"));
+    kernel.addAssemblyFile(b.path("src/asm/idt.s"));
     kernel.setLinkerScriptPath(linker_script_path);
     b.installArtifact(kernel);
 }

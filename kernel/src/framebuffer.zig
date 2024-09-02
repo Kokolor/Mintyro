@@ -1,4 +1,5 @@
 const limine = @import("limine");
+const io = @import("io.zig");
 const fmt = @import("std").fmt;
 const Writer = @import("std").io.Writer;
 
@@ -1340,8 +1341,12 @@ pub fn write_character(c: u8) void {
         text_cursor_y += 8;
         text_cursor_x = 0;
 
+        io.outb(0xE9, '\n');
+
         return;
     }
+
+    io.outb(0xE9, c);
 
     for (0..8) |i| {
         for (0..8) |j| {
