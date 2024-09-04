@@ -11,7 +11,7 @@ pub var text_cursor_x: u32 = 0;
 pub var text_cursor_y: u32 = 0;
 var text_cursor_color: u32 = @intFromEnum(Colors.White);
 
-var font: [256][16]u8 = undefined;
+var font: [256][18]u8 = undefined;
 
 const PSF1_HEADER = extern struct {
     magic: u16,
@@ -86,7 +86,7 @@ pub fn set_color(color: u32) void {
 
 pub fn write_character(c: u8) void {
     if (c == '\n') {
-        text_cursor_y += 16;
+        text_cursor_y += 18;
         text_cursor_x = 0;
 
         io.outb(0xE9, '\n');
@@ -96,7 +96,7 @@ pub fn write_character(c: u8) void {
 
     io.outb(0xE9, c);
 
-    for (0..16) |i| {
+    for (0..18) |i| {
         for (0..8) |j| {
             if (font[c][i] & (@as(u8, 1) << @intCast(7 - j)) != 0) {
                 write_pixel(@intCast(text_cursor_x + j), @intCast(text_cursor_y + i), text_cursor_color);
