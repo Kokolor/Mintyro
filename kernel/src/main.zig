@@ -26,7 +26,9 @@ export fn _start() callconv(.C) noreturn {
     framebuffer.set_color(@intFromEnum(framebuffer.Colors.Green));
     framebuffer.write_formatted("Mintyro!\n\n", .{});
 
-    while (true) {
-        asm volatile ("hlt");
-    }
+    framebuffer.set_color(@intFromEnum(framebuffer.Colors.Yellow));
+
+    asm volatile ("sti");
+
+    while (true) {}
 }

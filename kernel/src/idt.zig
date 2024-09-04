@@ -18,8 +18,6 @@ const Idtr = packed struct {
 };
 
 pub fn initialize() void {
-    pic_remap();
-
     var idt_entries = [_]IdtEntry{set_entry(0, 0, 0)} ** 256;
 
     idt_entries[0] = set_entry(@intFromPtr(&isr0), 0x08, 0x8e);
@@ -55,6 +53,13 @@ pub fn initialize() void {
     idt_entries[30] = set_entry(@intFromPtr(&isr30), 0x08, 0x8e);
     idt_entries[31] = set_entry(@intFromPtr(&isr31), 0x08, 0x8e);
 
+    idt_entries[33] = set_entry(@intFromPtr(&isr33), 0x08, 0x8e);
+
+    pic_remap();
+
+    io.outb(0x21, 0xfd);
+    io.outb(0xa1, 0xff);
+
     const idtr = Idtr{
         .size = @sizeOf(IdtEntry) * 256 - 1,
         .offset = @intFromPtr(&idt_entries),
@@ -64,8 +69,6 @@ pub fn initialize() void {
         :
         : [value] "r" (&idtr),
     );
-
-    asm volatile ("sti");
 }
 
 fn set_entry(address: u64, selector: u16, type_attributes: u8) IdtEntry {
@@ -103,6 +106,7 @@ pub export fn isr_handler(interrupt_number: u64) callconv(.C) void {
         18 => panic("Machine Check"),
         19 => panic("SIMD Floating-Point Exception"),
         20 => panic("Virtualization Exception"),
+        33 => keyboard_handler(),
 
         else => {
             framebuffer.write_formatted("Unknown Interrupt: {}\n", .{interrupt_number});
@@ -112,12 +116,20 @@ pub export fn isr_handler(interrupt_number: u64) callconv(.C) void {
 
 pub fn panic(msg: []const u8) void {
     framebuffer.set_color(@intFromEnum(framebuffer.Colors.White));
+    framebuffer.write_string("\n\n");
     framebuffer.write_rectangle(0, framebuffer.text_cursor_y, @intCast(framebuffer.framebuffer.width), 18, @intFromEnum(framebuffer.Colors.Red));
     framebuffer.write_formatted("Fatal Error: {s}\n", .{msg});
 
     while (true) {
         asm volatile ("cli; hlt");
     }
+}
+
+pub fn keyboard_handler() void {
+    const scancode = io.inb(0x60);
+    framebuffer.write_formatted("{x} ", .{scancode});
+
+    io.outb(0x20, 0x20);
 }
 
 extern fn pic_remap() void;
@@ -153,3 +165,4 @@ extern fn isr28() void;
 extern fn isr29() void;
 extern fn isr30() void;
 extern fn isr31() void;
+extern fn isr33() void;

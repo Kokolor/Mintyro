@@ -27,7 +27,7 @@ kernel:
 
 .PHONY: run
 run: $(IMAGE_NAME).iso
-	@qemu-system-x86_64 -m 512M -cdrom $(IMAGE_NAME).iso -boot d -debugcon stdio
+	@qemu-system-x86_64 -m 512M -cdrom $(IMAGE_NAME).iso -boot d -debugcon stdio -enable-kvm
 
 .PHONY: clean
 clean:
