@@ -112,7 +112,7 @@ pub export fn isr_handler(interrupt_number: u64) callconv(.C) void {
 
 pub fn panic(msg: []const u8) void {
     framebuffer.set_color(@intFromEnum(framebuffer.Colors.White));
-    framebuffer.write_rectangle(0, framebuffer.text_cursor_y, @intCast(framebuffer.framebuffer.width), 8, @intFromEnum(framebuffer.Colors.Red));
+    framebuffer.write_rectangle(0, framebuffer.text_cursor_y, @intCast(framebuffer.framebuffer.width), 16, @intFromEnum(framebuffer.Colors.Red));
     framebuffer.write_formatted("Fatal Error: {s}\n", .{msg});
 
     while (true) {
